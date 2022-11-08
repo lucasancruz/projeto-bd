@@ -3,6 +3,7 @@ package main
 import (
 	"api/config"
 	"api/db"
+	"api/migrations"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,8 @@ func main() {
 	config.LoadEnv()
 
 	DB = db.ConnectToDatabase()
+
+	migrations.RunMigrations(DB)
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {

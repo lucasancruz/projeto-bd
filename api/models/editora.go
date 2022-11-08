@@ -1,6 +1,6 @@
 package models
 
 type Editora struct {
-	Id   int    `json:"id"`
-	Nome string `json:"nome"`
+	ID   uint   `gorm:"primaryKey" json:"id"`
+	Nome string `gorm:"type:varchar(45);not null" json:"nome"`
 }
