@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var DB *gorm.DB
+
 func ConnectToDatabase() *gorm.DB {
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
@@ -30,7 +32,9 @@ func ConnectToDatabase() *gorm.DB {
 		panic("Failed connecting to database!")
 	}
 
-	return db
+	DB = db
+
+	return DB
 }
 
 func CloseDatabaseConnection(db *gorm.DB) {
