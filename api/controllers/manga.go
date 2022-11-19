@@ -5,6 +5,7 @@ import (
 	"api/models"
 	"api/validators"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -47,7 +48,7 @@ func FindMangaById(c *gin.Context) {
 	id := c.Param("id")
 
 	var manga models.Manga
-	result := db.DB.First(&manga, id)
+	result := db.DB.Joins("Editora").First(&manga, id)
 
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -63,10 +64,10 @@ func FindMangaById(c *gin.Context) {
 	})
 }
 
-func FindAllManga(c *gin.Context) {
+func FindAllMangas(c *gin.Context) {
 	var mangas []models.Manga
 
-	result := db.DB.Joins("Editora").Find(&mangas)
+	result := db.DB.Find(&mangas)
 
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -83,22 +84,12 @@ func FindAllManga(c *gin.Context) {
 }
 
 func UpdateManga(c *gin.Context) {
-	var manga models.Manga
 	var result *gorm.DB
 
-	id := c.Param("id")
-	result = db.DB.First(&manga, id)
-
-	if result.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"error":   "Mangá não encontrado!",
-		})
-		return
-	}
+	id, _ := strconv.Atoi(c.Param("id"))
+	manga := models.Manga{ID: uint(id)}
 
 	updatedManga := models.Manga{}
-
 	if err := c.ShouldBind(&updatedManga); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
@@ -119,5 +110,25 @@ func UpdateManga(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Mangá atualizado!",
+	})
+}
+
+func DeleteManga(c *gin.Context) {
+	var result *gorm.DB
+
+	id := c.Param("id")
+	result = db.DB.Delete(&models.Manga{}, id)
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   result.Error.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Mangá deletado com sucesso!",
 	})
 }
