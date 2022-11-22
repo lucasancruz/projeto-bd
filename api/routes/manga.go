@@ -14,4 +14,5 @@ func addMangaRoutes(rg *gin.RouterGroup) {
 	manga.PUT("/:id", controllers.UpdateManga)
 	manga.GET("/:id", controllers.FindMangaById)
 	manga.DELETE("/:id", controllers.DeleteManga)
+	manga.POST("/:id/capitulo", controllers.AddChapter)
 }
