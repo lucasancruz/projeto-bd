@@ -1,13 +1,17 @@
 import 'package:app/components/my_text_form_field.dart';
 import 'package:app/models/editora.dart';
+import 'package:app/models/manga.dart';
 import 'package:app/repositories/editora_repository.dart';
 import 'package:app/repositories/manga_repository.dart';
 import 'package:app/shared/constants.dart';
+import 'package:app/shared/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class CadastrarMangaPage extends StatefulWidget {
-  const CadastrarMangaPage({super.key});
+  const CadastrarMangaPage({super.key, this.manga});
+
+  final Manga? manga;
 
   @override
   State<CadastrarMangaPage> createState() => _CadastrarMangaPageState();
@@ -17,15 +21,34 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
   final _formKey = GlobalKey<FormState>();
   final dataCriacaoController = TextEditingController();
   final dataFinalizacaoController = TextEditingController();
+  final format = DateFormat("dd/MM/yyyy");
 
-  final mangaRepo = MangaRepository();
   final editoraRepo = EditoraRepository();
+  Future<List<Editora>>? editorasFuture;
 
-  String titulo = '';
-  String sinopse = '';
-  String imagem = '';
-  int? editoraId = null;
+  late String titulo;
+  late String sinopse;
+  late String imagem;
+  int? editoraId;
   bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    titulo = widget.manga?.titulo ?? '';
+    sinopse = widget.manga?.sinopse ?? '';
+    imagem = widget.manga?.imagem ?? '';
+    editoraId = widget.manga?.editoraID;
+    dataCriacaoController.text = widget.manga?.dataCriacao != null ? format.format(widget.manga!.dataCriacao!) : '';
+    dataFinalizacaoController.text = widget.manga?.dataFinalizacao != null ? format.format(widget.manga!.dataFinalizacao!) : '';
+
+    loadData();
+    print(widget.manga?.dataCriacao);
+  }
+
+  Future<void> loadData() async {
+    editorasFuture = editoraRepo.findAll();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +57,7 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
         backgroundColor: Theme.of(context).primaryColorDark,
         centerTitle: true,
         title: Text(
-          "Cadastrar Mangá",
+          widget.manga == null ? "Cadastrar Mangá" : "Atualizar Mangá",
           style: Theme.of(context)
               .textTheme
               .bodyLarge!
@@ -49,7 +72,7 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
             children: [
               MyTextFormField(
                 labelText: "Título",
-                initialValue: '',
+                initialValue: titulo,
                 onChanged: (value) => setState(() {
                   titulo = value;
                 }),
@@ -58,7 +81,7 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
               const SizedBox(height: kDefaultMargin),
               MyTextFormField(
                 labelText: "Sinopse",
-                initialValue: '',
+                initialValue: sinopse,
                 onChanged: (value) => setState(() {
                   sinopse = value;
                 }),
@@ -67,7 +90,7 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
               const SizedBox(height: kDefaultMargin),
               MyTextFormField(
                 labelText: "Imagem",
-                initialValue: '',
+                initialValue: imagem,
                 onChanged: (value) => setState(() {
                   imagem = value;
                 }),
@@ -93,7 +116,7 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
               ),
               const SizedBox(height: kDefaultMargin),
               FutureBuilder(
-                future: editoraRepo.findAll(),
+                future: editorasFuture,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Container();
@@ -167,16 +190,22 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
                       loading = true;
                     });
 
+                    final mangaRepo = MangaRepository();
+
                     final Map<String, dynamic> data = {
                       'titulo': titulo,
                       'sinopse': sinopse,
                       'imagem': imagem,
-                      'dataCriacao': getDate(dataCriacaoController),
-                      'dataFinalizacao': getDate(dataFinalizacaoController),
+                      'data_criacao': getIsoString(dataCriacaoController),
+                      'data_finalizacao': getIsoString(dataFinalizacaoController),
                       'editora_id': editoraId,
                     };
 
-                    final success = await mangaRepo.create(data);
+                    print(data);
+
+                    final success = widget.manga == null
+                        ? await mangaRepo.create(data)
+                        : await mangaRepo.update(data, widget.manga!.id);
 
                     if (success) {
                       _formKey.currentState!.reset();
@@ -197,8 +226,8 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
                   child: Center(
                     child: loading
                         ? const CircularProgressIndicator()
-                        : const Text(
-                            "Cadastrar",
+                        : Text(
+                            widget.manga == null ? "Cadastrar" : "Atualizar",
                             textAlign: TextAlign.center,
                           ),
                   ),
@@ -209,14 +238,6 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
         ),
       ),
     );
-  }
-
-  String? requiredValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Esse campo é obrigatório';
-    }
-
-    return null;
   }
 
   Function()? datePickerHandler(TextEditingController controller) {
@@ -231,7 +252,7 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
       );
 
       if (selectedDate != null) {
-        String formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+        String formattedDate = format.format(selectedDate);
 
         setState(() {
           controller.text = formattedDate;
@@ -240,11 +261,7 @@ class _CadastrarMangaPageState extends State<CadastrarMangaPage> {
     };
   }
 
-  DateTime? getDate(TextEditingController controller) {
-    final format = DateFormat("dd/MM/yyyy");
-
-    return controller.text.isEmpty
-        ? null
-        : format.parse(controller.text);
+  String? getIsoString(TextEditingController controller) {
+    return controller.text.isEmpty ? null : format.parse(controller.text).toUtc().toIso8601String();
   }
 }

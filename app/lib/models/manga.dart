@@ -8,6 +8,7 @@ class Manga {
   final DateTime? dataCriacao;
   final DateTime? dataFinalizacao;
   final String editora;
+  final int editoraID;
   final List<String> generos;
   final List<String> autores;
   final List<Capitulo> capitulos;
@@ -20,6 +21,7 @@ class Manga {
     this.dataCriacao,
     this.dataFinalizacao,
     required this.editora,
+    required this.editoraID,
     required this.generos,
     required this.autores,
     required this.capitulos,
@@ -30,10 +32,14 @@ class Manga {
         titulo = json['titulo'],
         sinopse = json['sinopse'],
         imagem = json['imagem'],
-        dataCriacao = json['dataCriacao'],
-        dataFinalizacao = json['dataFinalizacao'],
-        editora = json['editora']?['nome'],
-        generos = json['generos'] ?? [],
-        autores = json['autores'] ?? [],
-        capitulos = json['capitulos']?.map<Capitulo>((capitulo) => Capitulo.fromJson(capitulo)).toList() ?? [];
+        dataCriacao = DateTime.tryParse(json['data_criacao'].toString()),
+        dataFinalizacao = DateTime.tryParse(json['data_finalizacao'].toString()),
+        editora = json['editora']?['nome'] ?? '',
+        editoraID = json['editora_id'],
+        generos = json['generos']?.cast<String>() ?? [],
+        autores = json['autores']?.cast<String>() ?? [],
+        capitulos = json['capitulos']
+                ?.map<Capitulo>((capitulo) => Capitulo.fromJson(capitulo))
+                .toList() ??
+            [];
 }

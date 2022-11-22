@@ -11,6 +11,7 @@ class MyTextFormField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.controller,
+    this.keyboardType,
   });
 
   final String? initialValue;
@@ -21,6 +22,7 @@ class MyTextFormField extends StatelessWidget {
   final bool readOnly;
   final void Function()? onTap;
   final TextEditingController? controller;
+  final TextInputType? keyboardType;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,7 @@ class MyTextFormField extends StatelessWidget {
       cursorColor: Theme.of(context).primaryColor,
       readOnly: readOnly,
       onTap: onTap,
+      keyboardType: keyboardType,
       style:
           Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.white),
       decoration: InputDecoration(

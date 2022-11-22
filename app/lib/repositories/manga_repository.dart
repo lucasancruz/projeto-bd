@@ -18,7 +18,7 @@ class MangaRepository {
   }
 
   Future<List<Manga>> findAll() async {
-    List<Manga> mangas = [];  
+    List<Manga> mangas = [];
 
     try {
       final response = await client.get('/');
@@ -31,16 +31,18 @@ class MangaRepository {
     } catch (e) {
       print(e);
     }
-    
+
     return mangas;
   }
 
   Future<Manga?> findById(int id) async {
     try {
-      final response = await client.get('/$id');  
+      final response = await client.get('/$id');
 
       if (response.data['success']) {
         final data = response.data['data'];
+
+        print(data);
 
         return Manga.fromJson(data);
       }
@@ -51,8 +53,8 @@ class MangaRepository {
     return null;
   }
 
-  Future<bool> update(int id) async {
-    final response = await client.put('/$id');
+  Future<bool> update(Map<String, dynamic> data, int id) async {
+    final response = await client.put('/$id', data: data);
 
     if (response.data['success']) {
       return true;
@@ -63,6 +65,16 @@ class MangaRepository {
 
   Future<bool> delete(int id) async {
     final response = await client.delete('/$id');
+
+    if (response.data['success']) {
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<bool> addChapter(Map<String, dynamic> data, int id) async {
+    final response = await client.post('/$id/capitulo', data: data);
 
     if (response.data['success']) {
       return true;

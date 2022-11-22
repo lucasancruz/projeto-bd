@@ -1,4 +1,5 @@
 import 'package:app/models/manga.dart';
+import 'package:app/pages/manga_detail_page.dart';
 import 'package:app/shared/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -13,9 +14,9 @@ class MangaCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AspectRatio(
-          aspectRatio: 140/170,
+          aspectRatio: 140 / 170,
           child: Container(
-            padding: const EdgeInsets.all(kDefaultPadding / 3),
+            padding: const EdgeInsets.all(kDefaultPadding / 6),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: Theme.of(context).primaryColorDark,
@@ -33,8 +34,8 @@ class MangaCard extends StatelessWidget {
         Text(
           manga.titulo,
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
-            color: Colors.white,
-          ),
+                color: Colors.white,
+              ),
         ),
       ],
     );

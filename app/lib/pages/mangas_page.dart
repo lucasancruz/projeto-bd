@@ -1,20 +1,38 @@
 import 'package:app/components/manga_card.dart';
 import 'package:app/models/manga.dart';
 import 'package:app/pages/cadastrar_manga_page.dart';
+import 'package:app/pages/manga_detail_page.dart';
 import 'package:app/repositories/manga_repository.dart';
 import 'package:app/shared/constants.dart';
 import 'package:flutter/material.dart';
 
-class MangasPage extends StatelessWidget {
-  MangasPage({super.key});
+class MangasPage extends StatefulWidget {
+  const MangasPage({super.key});
 
+  @override
+  State<MangasPage> createState() => _MangasPageState();
+}
+
+class _MangasPageState extends State<MangasPage> {
   final MangaRepository mangaRepo = MangaRepository();
+  Future<List<Manga>>? mangasFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    mangasFuture = mangaRepo.findAll();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-          future: mangaRepo.findAll(),
+          future: mangasFuture,
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return SizedBox(
@@ -32,7 +50,23 @@ class MangasPage extends StatelessWidget {
               crossAxisSpacing: kDefaultMargin,
               mainAxisSpacing: kDefaultMargin,
               childAspectRatio: 140 / 192,
-              children: mangas.map((manga) => MangaCard(manga: manga)).toList(),
+              children: mangas
+                  .map(
+                    (manga) => InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) {
+                              return MangaDetailPage(id: manga.id);
+                            },
+                          ),
+                        ).then((value) => setState(() {}));
+                      },
+                      child: MangaCard(manga: manga),
+                    ),
+                  )
+                  .toList(),
             );
           }),
       floatingActionButton: FloatingActionButton(
@@ -46,7 +80,9 @@ class MangasPage extends StatelessWidget {
               MaterialPageRoute(
                 builder: (ctx) => const CadastrarMangaPage(),
               ),
-            );
+            ).then((value) => setState(() {
+              loadData();
+            }));
           },
         ),
       ),

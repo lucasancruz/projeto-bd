@@ -10,5 +10,5 @@ class Capitulo {
       : titulo = json['titulo'],
         numero = json['numero'],
         url = json['url'],
-        dataPublicacao = json['numero'];
+        dataPublicacao = DateTime.parse(json['data_publicacao']);
 }
