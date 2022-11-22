@@ -1,3 +1,4 @@
+import 'package:app/pages/editoras_page.dart';
 import 'package:app/pages/mangas_page.dart';
 import 'package:flutter/material.dart';
 
@@ -10,14 +11,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int currentIndex = 0;
-  List<Widget> pages = [MangasPage(), MangasPage()];
+  List<Widget> pages = const [MangasPage(), EditorasPage()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Mangá App"),
-        backgroundColor: Theme.of(context).primaryColorDark,
       ),
       body: pages[currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -32,11 +32,11 @@ class _HomePageState extends State<HomePage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.star),
-            label: "Favoritos",
+            label: "Mangás",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: "Pesquisar",
+            icon: Icon(Icons.book),
+            label: "Editoras",
           ),
         ],
       ),

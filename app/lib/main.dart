@@ -29,6 +29,9 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF313131),
+        ),
       ),
       home: const HomePage(),
     );
